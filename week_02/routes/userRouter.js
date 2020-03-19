@@ -5,7 +5,10 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: './uploads/'});
 const userController = require('../controllers/userController.js');
+const passport = require('../utils/pass.js');
 const user_list = [];
+
+passport.authenticate('jwt', {session: false});
 
 router.param('id', (req, res, next, id) => {
   req.user = { id }

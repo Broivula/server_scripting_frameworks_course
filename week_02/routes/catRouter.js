@@ -3,8 +3,11 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const catController = require('../controllers/catController.js');
+const passport = require('../utils/pass.js');
+
 
 // configure filenames
+passport.authenticate('jwt', {session: false});
 
 const storage = multer.diskStorage({
 
@@ -16,6 +19,7 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   }
 });
+
 const upload = multer({ storage: storage });
 
 router.param('id', (req, res, next, id) => {
