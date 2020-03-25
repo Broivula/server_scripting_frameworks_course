@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const catController = require('../controllers/catController.js');
-
+const cat = require('../models/cat');
 // configure filenames
 
 const storage = multer.diskStorage({
@@ -24,11 +24,12 @@ router.param('id', (req, res, next, id) => {
 });
 
 router.route('/')
-  .get(catController.cat_list_get)
-  .post(upload.single('cat'),(req, res) => {
-    console.log(req.file);
-    console.log(req.body);
-    res.send('With this endpoint you can add cats');
+  .get(async (req, res) => {
+    res.send(await cat.find());
+  })
+  .post(async (req, res) => {
+    const newCat = await cat.create({name: 'Piita', age:2});
+    res.send(`cat created with id ${newCat._id}`);
   })
   .put((req, res) => {
     res.send('With this endpoint you can edit cats');
