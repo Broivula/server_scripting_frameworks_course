@@ -1,44 +1,42 @@
 'use strict'
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const catController = require('../controllers/catController.js');
 const cat = require('../models/cat');
-// configure filenames
 
-const storage = multer.diskStorage({
-
-  destination: (req, file, cb) => {
-    cb(null, './uploads/')
-  },
-
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
-const upload = multer({ storage: storage });
-
-router.param('id', (req, res, next, id) => {
-  req.cat = { id }
-  next();
-});
 
 router.route('/')
   .get(async (req, res) => {
-    res.send(await cat.find());
+    res.send(await cat.find().populate('owner'));
   })
   .post(async (req, res) => {
-    const newCat = await cat.create({name: 'Piita', age:2});
+    const newCat = await cat.create({
+      name: req.body.name,
+      age: req.body.age,
+      gender: req.body.gender,
+      color: req.body.color,
+      weight: req.body.weight,
+    });
     res.send(`cat created with id ${newCat._id}`);
   })
-  .put((req, res) => {
-    res.send('With this endpoint you can edit cats');
+  .patch(async (req, res) => {
+    console.log(req.body);
+    const modifiedCat = await cat.updateOne({ _id: req.body.id },
+      {
+        name: req.body.name,
+        age: req.body.age,
+        gender: req.body.gender,
+        color: req.body.color,
+        weight: req.body.weight,
+        owner: req.body.owner,
+      });
+    res.status(200).send(`${req.body.name} updated succesfully!`);
   })
-  .delete((req, res) => {
-    res.send('With this endpoint you can delete cats');
+  .delete(async (req, res) => {
+    console.log('deleting..');
+    await cat.deleteOne({_id: req.body.id});
+    res.status(200).send('success');
   })
 
-router.route('/:id')
-  .get(catController.cat_get);
 
 module.exports = router;
